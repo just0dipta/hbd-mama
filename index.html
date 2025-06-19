@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ulang Tahun Mama</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: background 0.5s;
+            overflow: hidden;
+        }
+        
+        .page {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .active {
+            opacity: 1;
+            z-index: 1;
+        }
+        
+        .envelope {
+            width: 200px;
+            height: 120px;
+            background-color: #f5d742;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        
+        .envelope:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-top: 70px solid #e8c220;
+            transform-origin: top;
+            transition: transform 0.5s;
+        }
+        
+        .envelope.open {
+            transform: translateY(50px);
+        }
+        
+        .envelope.open:before {
+            transform: rotateX(180deg);
+        }
+        
+        .letter {
+            width: 180px;
+            height: 200px;
+            background-color: white;
+            position: absolute;
+            top: -180px;
+            left: 10px;
+            transition: top 0.5s 0.5s;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .envelope.open .letter {
+            top: -220px;
+        }
+        
+        .cake {
+            width: 150px;
+            height: 100px;
+            background-color: #f9c5d1;
+            border-radius: 10px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .cake:before {
+            content: '';
+            position: absolute;
+            width: 170px;
+            height: 20px;
+            background-color: #f9a8b8;
+            border-radius: 10px;
+            top: -10px;
+            left: -10px;
+        }
+        
+        .candle {
+            width: 10px;
+            height: 40px;
+            background-color: white;
+            position: absolute;
+            top: -50px;
+            left: 70px;
+            border-radius: 5px;
+        }
+        
+        .flame {
+            width: 15px;
+            height: 25px;
+            background-color: #ff9d00;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -25px;
+            left: -2.5px;
+            box-shadow: 0 0 10px #ff9d00, 0 0 20px #ff9d00;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        
+        .blow-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 80%;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .cute-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid pink;
+        }
+        
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .yes-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .no-btn {
+            background-color: #f44336;
+            color: white;
+            position: relative;
+        }
+        
+        .popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .show {
+            opacity: 1;
+        }
+        
+        h1 {
+            color: #d23669;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .music-control {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+        }
+        
+        .music-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio untuk musik latar -->
+    <audio id="bgMusic" loop>
+        <source src="happy-birthday-220024.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung elemen audio.
+    </audio>
+    
+    <!-- Tombol kontrol musik -->
+    <div class="music-control" id="musicControl">
+        <div class="music-icon">🎵</div>
+    </div>
+    
+    <!-- Halaman Amplop -->
+    <div class="page active" id="page1">
+        <h1>Untuk Mama Tersayang</h1>
+        <div class="envelope" id="envelope">
+            <div class="letter">
+                <h2>ada surat nih</h2>
+                <p>Klik untuk buka</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Halaman Kue -->
+    <div class="page" id="page2">
+        <h1>Selamat Ulang Tahun, Mama!</h1>
+        <div class="cake">
+            <div class="candle">
+                <div class="flame" id="flame"></div>
+            </div>
+        </div>
+        <button class="blow-btn" id="blowBtn">Tiup Lilin</button>
+        <div class="popup" id="popup1">Horeee!!</div>
+    </div>
+    
+    <!-- Halaman Pesan -->
+    <div class="page" id="page3">
+        <div class="content-box">
+            <img src="mama1.jpg" alt="Foto Lucu" class="cute-img">
+            <h2>Untuk Mama Tercinta</h2>
+            <p>Mama, terima kasih atas segala kasih sayang dan pengorbananmu. Aku berjanji akan menjadi anak yang baik dan membahagiakan mama.</p>
+            <div class="btn-group">
+                <button class="btn yes-btn" id="agreeBtn">oke</button>
+                <button class="btn no-btn" id="disagreeBtn">bohong!!</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Halaman Pertanyaan -->
+    <div class="page" id="page4">
+        <div class="content-box">
+            <img src="mama2.jpg" alt="Foto Lucu" class="cute-img">
+            <h2>Aku anak baik kan, Ma?</h2>
+            <div class="btn-group">
+                <button class="btn yes-btn" id="yesBtn">Iya</button>
+                <button class="btn no-btn" id="noBtn">Tidak</button>
+            </div>
+        </div>
+        <div class="popup" id="popup2">Iya dong, aku kan anak baik</div>
+    </div>
+    
+    <script>
+        // Variabel untuk posisi tombol Tidak
+        let positions = ['translateX(50px)', 'translateX(-50px)', 'translateY(50px)', 'translateY(-50px)'];
+        let currentPosition = 0;
+        
+        // Musik latar
+        const bgMusic = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+        
+        // Otomatis putar musik saat halaman dimuat (dengan izin pengguna)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Banyak browser memblokir autoplay, jadi kita perlu memulai dengan interaksi pengguna
+            // Kita akan menampilkan tombol play yang harus diklik pengguna
+        });
+        
+        // Kontrol musik
+        let isPlaying = false;
+        musicControl.addEventListener('click', function() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicControl.innerHTML = '<div class="music-icon">🔇</div>';
+            } else {
+                bgMusic.play()
+                    .then(() => {
+                        musicControl.innerHTML = '<div class="music-icon">🎵</div>';
+                    })
+                    .catch(error => {
+                        console.log("Autoplay prevented. User needs to interact first.");
+                        musicControl.innerHTML = '<div class="music-icon">▶️</div>';
+                    });
+            }
+            isPlaying = !isPlaying;
+        });
+        
+        // Amplop
+        const envelope = document.getElementById('envelope');
+        envelope.addEventListener('click', function() {
+            this.classList.add('open');
+            setTimeout(() => {
+                document.getElementById('page1').classList.remove('active');
+                document.getElementById('page2').classList.add('active');
+                
+                // Coba mainkan musik saat interaksi pertama
+                if (!isPlaying) {
+                    bgMusic.play()
+                        .then(() => {
+                            isPlaying = true;
+                            musicControl.innerHTML = '<div class="music-icon">🎵</div>';
+                        })
+                        .catch(error => {
+                            console.log("Autoplay prevented. User needs to click play button.");
+                        });
+                }
+            }, 1000);
+        });
+        
+        // Tiup lilin
+        const blowBtn = document.getElementById('blowBtn');
+        const flame = document.getElementById('flame');
+        const popup1 = document.getElementById('popup1');
+        
+        blowBtn.addEventListener('click', function() {
+            flame.style.opacity = '0';
+            popup1.classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('page2').classList.remove('active');
+                document.getElementById('page3').classList.add('active');
+                popup1.classList.remove('show');
+            }, 1500);
+        });
+        
+        // Tombol setuju/tidak
+        const disagreeBtn = document.getElementById('disagreeBtn');
+        const agreeBtn = document.getElementById('agreeBtn');
+        
+        disagreeBtn.addEventListener('click', function() {
+            currentPosition = (currentPosition + 1) % positions.length;
+            this.style.transform = positions[currentPosition];
+        });
+        
+        agreeBtn.addEventListener('click', function() {
+            document.getElementById('page3').classList.remove('active');
+            document.getElementById('page4').classList.add('active');
+        });
+        
+        // Tombol iya/tidak
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const popup2 = document.getElementById('popup2');
+        
+        noBtn.addEventListener('click', function() {
+            currentPosition = (currentPosition + 1) % positions.length;
+            this.style.transform = positions[currentPosition];
+        });
+        
+        yesBtn.addEventListener('click', function() {
+            popup2.classList.add('show');
+            
+            setTimeout(() => {
+                // Ganti nomor WhatsApp dengan nomor Anda
+                window.location.href = "https://wa.me/6282169797528?text=Horeee!!";
+            }, 1500);
+        });
+        
+        // Set background untuk setiap halaman
+        document.getElementById('page1').style.background = "url('https://tse3.mm.bing.net/th?id=OIP.o0-_5Yz2Vr32GtIPXUKTLQHaEo&pid=Api&P=0&h=180') center/cover";
+        document.getElementById('page2').style.background = "linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('https://tse3.mm.bing.net/th?id=OIP.o0-_5Yz2Vr32GtIPXUKTLQHaEo&pid=Api&P=0&h=180') center/cover";
+        document.getElementById('page3').style.background = "url('https://tse3.mm.bing.net/th?id=OIP.o0-_5Yz2Vr32GtIPXUKTLQHaEo&pid=Api&P=0&h=180') center/cover";
+        document.getElementById('page4').style.background = "linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('https://tse3.mm.bing.net/th?id=OIP.o0-_5Yz2Vr32GtIPXUKTLQHaEo&pid=Api&P=0&h=180') center/cover";
+    </script>
+</body>
+</html>
